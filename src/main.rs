@@ -9,9 +9,17 @@ struct Ball {
 }
 
 #[derive(Debug)]
+struct Player {
+    score: u32,
+    position: f32,
+}
+
+#[derive(Debug)]
 struct World {
-    size: (f32, f32),
+    size: (u32, u32),
     ball: Ball,
+    p1: Player,
+    p2: Player,
 }
 /*const pallettes = [
     [0x85D600, 0xDE4A1F, 0xc4ff66, 0xe98263],
@@ -20,14 +28,22 @@ struct World {
 
 fn main() {
     let mut world: World = World {
-        size: (640.0, 480.0),
+        size: (640, 480),
         ball: Ball {
             radius: 0.05,
             position: (0.5, 0.5),
             velocity: (0.0, 0.0),
         },
+        p1: Player {
+            score: 0,
+            position: 0.5,
+        },
+        p2: Player {
+            score: 0,
+            position: 0.5,
+        },
     };
-    let mut window: PistonWindow = WindowSettings::new("Foosball", (640, 480))
+    let mut window: PistonWindow = WindowSettings::new("Foosball", world.size)
         .exit_on_esc(true)
         .build()
         .unwrap_or_else(|e| panic!("Failed to build PistonWindow: {}", e));
