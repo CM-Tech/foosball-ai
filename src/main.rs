@@ -35,9 +35,9 @@ fn main() {
 
     let mut world: World = World {
         ball: Ball {
-            radius: 0.05,
+            radius: 10.0,
             position: (w / 2.0, h / 2.0),
-            velocity: (0.1, 0.1),
+            velocity: (1.0, 1.0),
         },
         p1: Player {
             score: 0,
@@ -55,7 +55,7 @@ fn main() {
         .build()
         .unwrap();
     while let Some(e) = window.next() {
-        let speed = 0.1;
+        let speed = 0.05;
         if let Some(Button::Keyboard(key)) = e.press_args() {
             match key {
                 Key::W => world.p1.dir = -speed,
@@ -83,22 +83,49 @@ fn main() {
             world.p1.position = world.p1.position.min(1.0).max(-1.0);
             world.p2.position = world.p2.position.min(1.0).max(-1.0);
 
-            world.ball.position.0 += world.ball.velocity.0;
-            world.ball.position.1 += world.ball.velocity.1;
+            world.ball.position.0 += world.ball.velocity.0 * 2.0;
+            world.ball.position.1 += world.ball.velocity.1 * 2.0;
+
+            if world.ball.position.1 - world.ball.radius < 0.0 {
+                world.ball.velocity.1 = -world.ball.velocity.1;
+                world.ball.position.1 = world.ball.radius;
+            }
+            if world.ball.position.1 + world.ball.radius > h {
+                world.ball.velocity.1 = -world.ball.velocity.1;
+                world.ball.position.1 = h - world.ball.radius;
+            }
+            if world.ball.position.0 - world.ball.radius < w * 0.1 {
+                world.ball.velocity.0 = -world.ball.velocity.0;
+                world.ball.position.0 = w * 0.1 + world.ball.radius;
+            }
+            if world.ball.position.0 + world.ball.radius > w * 0.9 {
+                world.ball.velocity.0 = -world.ball.velocity.0;
+                world.ball.position.0 = w * 0.9 - world.ball.radius;
+            }
 
             for (column, amount) in [1, 2, 3, 4, 4, 3, 2, 1].iter().enumerate() {
                 for y in 0..*amount {
+                    let x_pos = column as f64 / 7.0 * (w * 6.0 / 10.0) + w * 2.0 / 10.0 - 5.0;
+                    let y_pos = h * (y as f64 + 1.0) / (*amount as f64 + 1.0) - 25.0
+                        + [&world.p1, &world.p2][PLAYERS[column as usize]].position
+                            / [3, 3, 4, 5, 5, 4, 3, 3][column] as f64 * h;
+
+                    if world.ball.position.0 - world.ball.radius < x_pos + 5.0
+                        && world.ball.position.0 + world.ball.radius > x_pos - 5.0
+                        && world.ball.position.1 - world.ball.radius < y_pos + 25.0
+                        && world.ball.position.1 + world.ball.radius > y_pos - 25.0
+                    {
+                        let ball_x = (world.ball.position.0 - x_pos).abs()
+                            * (PLAYERS[column] as f64 * -2.0 + 1.0);
+                        let ball_y = world.ball.position.1 - y_pos;
+                        let length = ball_x.hypot(ball_y);
+                        world.ball.velocity.0 = ball_x / length;
+                        world.ball.velocity.1 = ball_y / length;
+                    }
+
                     rectangle(
                         my_palette[PLAYERS[column as usize]],
-                        [
-                            column as f64 / 7.0 * (w * 6.0 / 10.0) + w * 2.0 / 10.0 - 5.0,
-                            h * (y as f64 + 1.0) / (*amount as f64 + 1.0) - 25.0
-                                + [&world.p1, &world.p2][PLAYERS[column as usize]].position
-                                    / [3, 3, 4, 5, 5, 4, 3, 3][column] as f64
-                                    * h,
-                            10.0,
-                            50.0,
-                        ],
+                        [x_pos - 5.0, y_pos - 25.0, 10.0, 50.0],
                         c.transform,
                         g,
                     );
@@ -107,7 +134,12 @@ fn main() {
 
             ellipse(
                 [0.1, 0.1, 0.1, 1.0],
-                [world.ball.position.0, world.ball.position.1, 10.0, 10.0],
+                [
+                    world.ball.position.0 - world.ball.radius,
+                    world.ball.position.1 - world.ball.radius,
+                    world.ball.radius * 2.0,
+                    world.ball.radius * 2.0,
+                ],
                 c.transform,
                 g,
             )
