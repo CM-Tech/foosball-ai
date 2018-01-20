@@ -2,21 +2,15 @@ extern crate piston_window;
 use piston_window::*;
 
 #[derive(Debug)]
-struct Point {
-    x: f32,
-    y: f32,
-}
-
-#[derive(Debug)]
 struct Ball {
     radius: f32,
-    position: Point,
-    velocity: Point,
+    position: (f32, f32),
+    velocity: (f32, f32),
 }
 
 #[derive(Debug)]
 struct World {
-    size: Point,
+    size: (f32, f32),
     ball: Ball,
 }
 /*const pallettes = [
@@ -26,11 +20,11 @@ struct World {
 
 fn main() {
     let mut world: World = World {
-        size: Point { x: 640.0, y: 480.0 },
+        size: (640.0, 480.0),
         ball: Ball {
             radius: 0.05,
-            position: Point { x: 0.5, y: 0.5 },
-            velocity: Point { x: 0.0, y: 0.0 },
+            position: (0.5, 0.5),
+            velocity: (0.0, 0.0),
         },
     };
     let mut window: PistonWindow = WindowSettings::new("Foosball", (640, 480))
