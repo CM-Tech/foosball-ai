@@ -25,6 +25,7 @@ struct World {
 ];*/
 
 fn main() {
+    let mut world:World= World{size:Point{x:640,y:480},ball:Ball{radius:0.05,position:Point{x:0.5,y:0.5},velocity:Point{x:0.0,y:0.0}}};
     let mut window: PistonWindow = WindowSettings::new("Foosball", (640, 480))
         .exit_on_esc(true)
         .build()
