@@ -7,7 +7,7 @@ use piston_window::*;
 ];*/
 
 fn main() {
-    let mut window: PistonWindow = WindowSettings::new("Hello Piston!", (640, 480))
+    let mut window: PistonWindow = WindowSettings::new("Foosball", (640, 480))
         .exit_on_esc(true)
         .build()
         .unwrap_or_else(|e| { panic!("Failed to build PistonWindow: {}", e) });
