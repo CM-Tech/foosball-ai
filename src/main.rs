@@ -71,13 +71,36 @@ impl App {
                     let h = shrunkScale*(world.size.1 as f64);
                     let transform = c.transform.trans(cx, cy)
                                        .trans(-w/2.0, -h/2.0);
+                    ellipse(
+                        colors[column as usize],
+                        [
+                            column as f64 / 7.0 * (w * 6.0 / 10.0) + w * 2.0 / 10.0 - 10.0,
+                            h * (y as f64 + 1.0) / (*amount as f64 + 1.0) -30.0*shrunkScale,
+                            20.0*shrunkScale,
+                            20.0*shrunkScale,
+                        ],
+                        transform,
+                        gl,
+                    );
                     rectangle(
                         colors[column as usize],
                         [
-                            column as f64 / 7.0 * (w * 6.0 / 10.0) + w * 2.0 / 10.0 - 5.0,
-                            h * (y as f64 + 1.0) / (*amount as f64 + 1.0) - 25.0,
-                            10.0*shrunkScale,
-                            50.0*shrunkScale,
+                            column as f64 / 7.0 * (w * 6.0 / 10.0) + w * 2.0 / 10.0 - 10.0,
+                            h * (y as f64 + 1.0) / (*amount as f64 + 1.0) -20.0*shrunkScale,
+                            20.0*shrunkScale,
+                            40.0*shrunkScale,
+                        ],
+                        transform,
+                        gl,
+                    );
+                    
+                    ellipse(
+                        colors[column as usize],
+                        [
+                            column as f64 / 7.0 * (w * 6.0 / 10.0) + w * 2.0 / 10.0 - 10.0,
+                            h * (y as f64 + 1.0) / (*amount as f64 + 1.0) +10.0*shrunkScale,
+                            20.0*shrunkScale,
+                            20.0*shrunkScale,
                         ],
                         transform,
                         gl,
