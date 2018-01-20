@@ -4,8 +4,6 @@ use piston_window::*;
 use piston::input::*;
 use std::f64;
 
-
-
 #[derive(Debug)]
 struct Ball {
     radius: f64,
@@ -21,7 +19,6 @@ struct Player {
 
 #[derive(Debug)]
 struct World {
-    size: (u32, u32),
     ball: Ball,
     p1: Player,
     p2: Player,
@@ -31,20 +28,20 @@ struct World {
     [0x85D600, 0xDE4A1F, 0xc4ff66, 0xe98263],
     [0x26B8F2, 0xF29A21, 0x90dbf9, 0xf7c47d]
 ];*/
+const SCREEN: (u32, u32) = (1050, 600);
+const PALLETTES: [[[f32; 4]; 2]; 2] = [
+    [[0.15, 0.72, 0.95, 1.0], [0.95, 0.6, 0.13, 1.0]],
+    [[0.52, 0.84, 0.0, 1.0], [0.87, 0.29, 0.12, 1.0]],
+];
 
 fn main() {
-    let pallettes = [
-        [[0.15, 0.72, 0.95, 1.0], [0.95, 0.6, 0.13, 1.0]],
-        [[0.52, 0.84, 0.0, 1.0], [0.87, 0.29, 0.12, 1.0]],
-    ];
-    let my_palette = pallettes[0];
+    let my_palette = PALLETTES[0];
     let colors: Vec<_> = [0, 0, 1, 0, 1, 0, 1, 1]
         .iter()
         .map(|x| my_palette[*x as usize])
         .collect();
 
     let mut world: World = World {
-        size: (1050, 600),
         ball: Ball {
             radius: 0.05,
             position: (0.5, 0.5),
@@ -59,20 +56,20 @@ fn main() {
             position: 0.5,
         },
     };
-    let mut window: PistonWindow = WindowSettings::new("Foosball", world.size)
+    let mut window: PistonWindow = WindowSettings::new("Foosball", SCREEN)
         .exit_on_esc(true)
         .build()
-        .unwrap_or_else(|e| panic!("Failed to build PistonWindow: {}", e));
-        let mut n:f64=0.0;
+        .unwrap();
+    let mut n: f64 = 0.0;
     while let Some(e) = window.next() {
-        n=n+0.01;
+        n = n + 0.01;
         window.draw_2d(&e, |c, g| {
             clear([0.9, 0.9, 0.9, 1.0], g);
 
             for (column, amount) in [1, 2, 3, 4, 4, 3, 2, 1].iter().enumerate() {
                 for y in 0..*amount {
-                    let w = world.size.0 as f64;
-                    let h = world.size.1 as f64;
+                    let w = SCREEN.0 as f64;
+                    let h = SCREEN.1 as f64;
                     rectangle(
                         colors[column as usize],
                         [
