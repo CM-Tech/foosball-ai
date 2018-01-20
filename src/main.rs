@@ -82,7 +82,7 @@ impl App {
             //rectangle(RED, square, transform, gl);
         });
     }
-
+//update game here (args.dt is delta time)
     fn update(&mut self, args: &UpdateArgs) {
         // Rotate 2 radians per second.
         self.rotation += 2.0 * args.dt;
