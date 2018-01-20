@@ -87,6 +87,12 @@ impl App {
         // Rotate 2 radians per second.
         self.rotation += 2.0 * args.dt;
     }
+    fn key(&mut self, key: Key) {
+        if key == Key::W {
+
+        }
+        // Rotate 2 radians per second.
+    }
 }
 
 fn main() {
@@ -132,6 +138,10 @@ let mut world: World = World {
 
         if let Some(u) = e.update_args() {
             app.update(&u);
+        }
+        if let Some(Button::Keyboard(key)) = e.press_args() {
+            app.key(key);
+            println!("Pressed keyboard key '{:?}'", key);
         }
     }
 }
