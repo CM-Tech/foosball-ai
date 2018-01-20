@@ -30,11 +30,14 @@ const PLAYERS: [usize; 8] = [0, 0, 1, 0, 1, 0, 1, 1];
 fn main() {
     let my_palette = PALLETTES[0];
 
+    let w = SCREEN.0 as f64;
+    let h = SCREEN.1 as f64;
+
     let mut world: World = World {
         ball: Ball {
             radius: 0.05,
-            position: (0.5, 0.5),
-            velocity: (0.0, 0.0),
+            position: (w / 2.0, h / 2.0),
+            velocity: (0.1, 0.1),
         },
         p1: Player {
             score: 0,
@@ -80,10 +83,11 @@ fn main() {
             world.p1.position = world.p1.position.min(1.0).max(-1.0);
             world.p2.position = world.p2.position.min(1.0).max(-1.0);
 
+            world.ball.position.0 += world.ball.velocity.0;
+            world.ball.position.1 += world.ball.velocity.1;
+
             for (column, amount) in [1, 2, 3, 4, 4, 3, 2, 1].iter().enumerate() {
                 for y in 0..*amount {
-                    let w = SCREEN.0 as f64;
-                    let h = SCREEN.1 as f64;
                     rectangle(
                         my_palette[PLAYERS[column as usize]],
                         [
@@ -100,6 +104,13 @@ fn main() {
                     );
                 }
             }
+
+            ellipse(
+                [0.1, 0.1, 0.1, 1.0],
+                [world.ball.position.0, world.ball.position.1, 10.0, 10.0],
+                c.transform,
+                g,
+            )
         });
     }
 }
