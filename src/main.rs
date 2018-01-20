@@ -58,7 +58,7 @@ impl App {
         if((args.height as f64)/(world.size.1 as f64)<shrunkScale){
             shrunkScale=(args.height as f64)/(world.size.1 as f64);
         }
-        let (x, y) = ((args.width / 2) as f64,
+        let (cx, cy) = ((args.width / 2) as f64,
                       (args.height / 2) as f64);
 
         self.gl.draw(args.viewport(), |c, gl| {
@@ -69,6 +69,8 @@ impl App {
                 for y in 0..*amount {
                     let w = shrunkScale*(world.size.0 as f64);
                     let h = shrunkScale*(world.size.1 as f64);
+                    let transform = c.transform.trans(cx, cy)
+                                       .trans(-w/2.0, -h/2.0);
                     rectangle(
                         colors[column as usize],
                         [
@@ -77,15 +79,13 @@ impl App {
                             10.0*shrunkScale,
                             50.0*shrunkScale,
                         ],
-                        c.transform,
+                        transform,
                         gl,
                     );
                 }
             }
 
-            let transform = c.transform.trans(x, y)
-                                       .rot_rad(rotation)
-                                       .trans(-25.0, -25.0);
+            
 
             // Draw a box rotating around the middle of the screen.
             //rectangle(RED, square, transform, gl);
