@@ -54,6 +54,10 @@ impl App {
         let square = rectangle::square(0.0, 0.0, 50.0);
         let rotation = self.rotation;
         let world=&self.world;
+        let mut shrunkScale=(args.width as f64)/(world.size.0 as f64);
+        if((args.height as f64)/(world.size.1 as f64)<shrunkScale){
+            shrunkScale=(args.height as f64)/(world.size.1 as f64);
+        }
         let (x, y) = ((args.width / 2) as f64,
                       (args.height / 2) as f64);
 
@@ -63,11 +67,16 @@ impl App {
 
             for (column, amount) in [1, 2, 3, 4, 4, 3, 2, 1].iter().enumerate() {
                 for y in 0..*amount {
-                    let w = world.size.0 as f64;
-                    let h = world.size.1 as f64;
+                    let w = shrunkScale*(world.size.0 as f64);
+                    let h = shrunkScale*(world.size.1 as f64);
                     rectangle(
-                        my_palette[PLAYERS[column]],
-                        [x_pos - 5.0, y_pos - 25.0, 10.0, 50.0],
+                        colors[column as usize],
+                        [
+                            column as f64 / 7.0 * (w * 6.0 / 10.0) + w * 2.0 / 10.0 - 5.0,
+                            h * (y as f64 + 1.0) / (*amount as f64 + 1.0) - 25.0,
+                            10.0*shrunkScale,
+                            50.0*shrunkScale,
+                        ],
                         c.transform,
                         gl,
                     );
