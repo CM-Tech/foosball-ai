@@ -1,6 +1,24 @@
 extern crate piston_window;
 use piston_window::*;
 
+#[derive(Debug)]
+struct Point {
+    x: f32,
+    y: f32,
+}
+
+#[derive(Debug)]
+struct Ball {
+    radius:f32,
+    position:Point,
+    velocity:Point
+}
+
+#[derive(Debug)]
+struct World {
+    size:Point,
+    ball:Ball
+}
 /*const pallettes = [
     [0x85D600, 0xDE4A1F, 0xc4ff66, 0xe98263],
     [0x26B8F2, 0xF29A21, 0x90dbf9, 0xf7c47d]
