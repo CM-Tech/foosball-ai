@@ -178,9 +178,9 @@ fn main() {
     let glyphs = Glyphs::from_bytes(font, factory, TextureSettings::new()).unwrap();
     // Create a new game and run it.
     let mut app = App {
-        glyphs: glyphs,
+        glyphs,
         palette: 0,
-        size: size,
+        size,
         ball: Ball {
             radius: 10.0,
             pos: (525.0, 300.0),
