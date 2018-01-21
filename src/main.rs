@@ -1,3 +1,4 @@
+extern crate find_folder;
 extern crate graphics;
 extern crate opengl_graphics;
 extern crate piston;
@@ -35,6 +36,7 @@ const PLAYERS: [usize; 8] = [0, 0, 1, 0, 1, 0, 1, 1];
 pub struct App {
     gl: GlGraphics, // OpenGL drawing backend.
     world: World,
+    glyphs:Glyphs
 }
 
 impl App {
@@ -125,6 +127,49 @@ impl App {
                     );
                 }
             }
+            rectangle(
+                [0.1, 0.1, 0.1, 1.0],
+                [0.0, h / 3.0, 10.0, h / 3.0],
+                transform,
+                gl,
+            );
+
+            rectangle(
+                [0.1, 0.1, 0.1, 1.0],
+                [w - 10.0, h / 3.0, 10.0, h / 3.0],
+                transform,
+                gl,
+            );
+
+            ellipse(
+                [0.1, 0.1, 0.1, 1.0],
+                [
+                    world.ball.position.0 - world.ball.radius,
+                    world.ball.position.1 - world.ball.radius,
+                    world.ball.radius * 2.0,
+                    world.ball.radius * 2.0,
+                ],
+                transform,
+                gl,
+            );
+
+            text(
+                [0.7, 0.7, 0.7, 1.0],
+                50,
+                &(world.p1.score).to_string(),
+                &mut self.glyphs,
+                transform.trans(w / 2.0 - 50.0, 50.0),
+                gl,
+            ).unwrap();
+
+            text(
+                [0.7, 0.7, 0.7, 1.0],
+                50,
+                &(world.p2.score).to_string(),
+                &mut self.glyphs,
+                transform.trans(w / 2.0 + 50.0, 50.0),
+                gl,
+            ).unwrap();
 
             // Draw a box rotating around the middle of the screen.
             //rectangle(RED, square, transform, gl);
@@ -178,6 +223,7 @@ impl App {
 
 fn main() {
     // Change this to OpenGL::V2_1 if not working.
+    
     let opengl = OpenGL::V3_2;
     let world: World = World {
         size: (1050, 600),
@@ -203,11 +249,18 @@ fn main() {
         .exit_on_esc(true)
         .build()
         .unwrap();
-
+let assets = find_folder::Search::ParentsThenKids(3, 3)
+        .for_folder("assets")
+        .unwrap();
+    println!("{:?}", assets);
+    let ref font = assets.join("FiraSans-Regular.ttf");
+    let factory = window.factory.clone();
+    let mut glyphs = Glyphs::new(font, factory, TextureSettings::new()).unwrap();
     // Create a new game and run it.
     let mut app = App {
         gl: GlGraphics::new(opengl),
         world: world,
+        glyphs:glyphs
     };
 
     let mut events = Events::new(EventSettings::new());
