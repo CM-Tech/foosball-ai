@@ -229,9 +229,9 @@ fn main() {
     let world: World = World {
         size: (1050, 600),
         ball: Ball {
-            radius: 0.05,
-            position: (0.5, 0.5),
-            velocity: (0.0, 0.0),
+            radius: 10.0,
+            position: (525.0, 300.0),
+            velocity: (1.0, 1.0),
         },
         p1: Player {
             score: 0,
