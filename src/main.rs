@@ -9,7 +9,7 @@ use piston::input::*;
 extern crate piston_window;
 
 use piston_window::*;
-use opengl_graphics::{GlGraphics, OpenGL};
+use opengl_graphics::OpenGL;
 #[derive(Debug)]
 struct Ball {
     radius: f64,
@@ -34,13 +34,17 @@ const PALLETTES: [[[f32; 4]; 2]; 2] = [
 ];
 const PLAYERS: [usize; 8] = [0, 0, 1, 0, 1, 0, 1, 1];
 pub struct App {
-    gl: GlGraphics, // OpenGL drawing backend.
     world: World,
-    glyphs:Glyphs
+    glyphs: Glyphs,
 }
 
 impl App {
-    fn render<E:piston::input::GenericEvent>(&mut self, args: &RenderArgs,e: &E, window: &mut PistonWindow) {
+    fn render<E: piston::input::GenericEvent>(
+        &mut self,
+        args: &RenderArgs,
+        e: &E,
+        window: &mut PistonWindow,
+    ) {
         let my_palette = PALLETTES[0];
 
         use graphics::*;
@@ -51,8 +55,8 @@ impl App {
             shrunk_scale = (args.height as f64) / (world.size.1 as f64);
         }
         let (cx, cy) = ((args.width / 2) as f64, (args.height / 2) as f64);
-
-        window.draw_2d(&e, |c, gl| {
+        let glyphs = &mut self.glyphs;
+        window.draw_2d(e, |c, gl| {
             // Clear the screen.
             clear([0.9, 0.9, 0.9, 1.0], gl);
             let w = shrunk_scale * (world.size.0 as f64);
@@ -157,7 +161,7 @@ impl App {
                 [0.7, 0.7, 0.7, 1.0],
                 50,
                 &(world.p1.score).to_string(),
-                &mut self.glyphs,
+                glyphs,
                 transform.trans(w / 2.0 - 50.0, 50.0),
                 gl,
             ).unwrap();
@@ -166,13 +170,10 @@ impl App {
                 [0.7, 0.7, 0.7, 1.0],
                 50,
                 &(world.p2.score).to_string(),
-                &mut self.glyphs,
+                glyphs,
                 transform.trans(w / 2.0 + 50.0, 50.0),
                 gl,
             ).unwrap();
-
-            // Draw a box rotating around the middle of the screen.
-            //rectangle(RED, square, transform, gl);
         });
     }
     //update game here (args.dt is delta time)
@@ -223,7 +224,7 @@ impl App {
 
 fn main() {
     // Change this to OpenGL::V2_1 if not working.
-    
+
     let opengl = OpenGL::V3_2;
     let world: World = World {
         size: (1050, 600),
@@ -249,24 +250,23 @@ fn main() {
         .exit_on_esc(true)
         .build()
         .unwrap();
-let assets = find_folder::Search::ParentsThenKids(3, 3)
+    let assets = find_folder::Search::ParentsThenKids(3, 3)
         .for_folder("assets")
         .unwrap();
     println!("{:?}", assets);
     let ref font = assets.join("FiraSans-Regular.ttf");
     let factory = window.factory.clone();
-    let mut glyphs = Glyphs::new(font, factory, TextureSettings::new()).unwrap();
+    let glyphs = Glyphs::new(font, factory, TextureSettings::new()).unwrap();
     // Create a new game and run it.
     let mut app = App {
-        gl: GlGraphics::new(opengl),
         world: world,
-        glyphs:glyphs
+        glyphs: glyphs,
     };
 
     let mut events = Events::new(EventSettings::new());
     while let Some(e) = events.next(&mut window) {
         if let Some(r) = e.render_args() {
-            app.render(&r,&e,&mut window);
+            app.render(&r, &e, &mut window);
         }
 
         if let Some(u) = e.update_args() {
