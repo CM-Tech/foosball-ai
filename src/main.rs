@@ -174,10 +174,6 @@ impl App {
             world.ball.position.0 = w - world.ball.radius;
         }
     }
-    fn key(&mut self, key: Key) {
-        if key == Key::W {}
-        // Rotate 2 radians per second.
-    }
 }
 
 fn main() {
@@ -193,12 +189,12 @@ fn main() {
         p1: Player {
             score: 0,
             dir: 0.0,
-            position: 0.5,
+            position: 0.0,
         },
         p2: Player {
             score: 0,
             dir: 0.0,
-            position: 0.5,
+            position: 0.0,
         },
     };
     // Create an Glutin window.
@@ -222,10 +218,6 @@ fn main() {
 
         if let Some(u) = e.update_args() {
             app.update(&u);
-        }
-        if let Some(Button::Keyboard(key)) = e.press_args() {
-            app.key(key);
-            println!("Pressed keyboard key '{:?}'", key);
         }
         let speed = 0.05;
         if let Some(Button::Keyboard(key)) = e.press_args() {
