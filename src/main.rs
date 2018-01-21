@@ -1,5 +1,6 @@
-extern crate piston;
+extern crate find_folder;
 extern crate piston_window;
+
 use piston_window::*;
 use std::f64;
 
@@ -42,18 +43,27 @@ fn main() {
         p1: Player {
             score: 0,
             dir: 0.0,
-            position: 0.5,
+            position: 0.0,
         },
         p2: Player {
             score: 0,
             dir: 0.0,
-            position: 0.5,
+            position: 0.0,
         },
     };
     let mut window: PistonWindow = WindowSettings::new("Foosball", SCREEN)
         .exit_on_esc(true)
         .build()
         .unwrap();
+
+    let assets = find_folder::Search::ParentsThenKids(3, 3)
+        .for_folder("assets")
+        .unwrap();
+    println!("{:?}", assets);
+    let ref font = assets.join("FiraSans-Regular.ttf");
+    let factory = window.factory.clone();
+    let mut glyphs = Glyphs::new(font, factory, TextureSettings::new()).unwrap();
+
     while let Some(e) = window.next() {
         let speed = 0.05;
         if let Some(Button::Keyboard(key)) = e.press_args() {
@@ -83,8 +93,19 @@ fn main() {
             world.p1.position = world.p1.position.min(1.0).max(-1.0);
             world.p2.position = world.p2.position.min(1.0).max(-1.0);
 
-            world.ball.position.0 += world.ball.velocity.0 * 2.0;
-            world.ball.position.1 += world.ball.velocity.1 * 2.0;
+            world.ball.position.0 += world.ball.velocity.0 * 5.0;
+            world.ball.position.1 += world.ball.velocity.1 * 5.0;
+
+            if world.ball.position.1 - world.ball.radius > h / 3.0
+                && world.ball.position.1 + world.ball.radius < h * 2.0 / 3.0
+            {
+                if world.ball.position.0 + world.ball.radius > w {
+                    world.p1.score += 1;
+                }
+                if world.ball.position.0 - world.ball.radius < 0.0 {
+                    world.p2.score += 1;
+                }
+            }
 
             if world.ball.position.1 - world.ball.radius < 0.0 {
                 world.ball.velocity.1 = -world.ball.velocity.1;
@@ -94,20 +115,20 @@ fn main() {
                 world.ball.velocity.1 = -world.ball.velocity.1;
                 world.ball.position.1 = h - world.ball.radius;
             }
-            if world.ball.position.0 - world.ball.radius < w * 0.1 {
+            if world.ball.position.0 - world.ball.radius < 0.0 {
                 world.ball.velocity.0 = -world.ball.velocity.0;
-                world.ball.position.0 = w * 0.1 + world.ball.radius;
+                world.ball.position.0 = world.ball.radius;
             }
-            if world.ball.position.0 + world.ball.radius > w * 0.9 {
+            if world.ball.position.0 + world.ball.radius > w {
                 world.ball.velocity.0 = -world.ball.velocity.0;
-                world.ball.position.0 = w * 0.9 - world.ball.radius;
+                world.ball.position.0 = w - world.ball.radius;
             }
 
-            for (column, amount) in [1, 2, 3, 4, 4, 3, 2, 1].iter().enumerate() {
-                for y in 0..*amount {
-                    let x_pos = column as f64 / 7.0 * (w * 6.0 / 10.0) + w * 2.0 / 10.0 - 5.0;
-                    let y_pos = h * (y as f64 + 1.0) / (*amount as f64 + 1.0) - 25.0
-                        + [&world.p1, &world.p2][PLAYERS[column as usize]].position
+            for (column, amount) in [2, 3, 4, 5, 5, 4, 3, 2].iter().enumerate() {
+                for y in 1..*amount {
+                    let x_pos = (column as f64 + 1.0) / 9.0 * w;
+                    let y_pos = h * (y as f64) / (*amount as f64)
+                        + [&world.p1, &world.p2][PLAYERS[column]].position
                             / [3, 3, 4, 5, 5, 4, 3, 3][column] as f64 * h;
 
                     if world.ball.position.0 - world.ball.radius < x_pos + 5.0
@@ -124,13 +145,27 @@ fn main() {
                     }
 
                     rectangle(
-                        my_palette[PLAYERS[column as usize]],
+                        my_palette[PLAYERS[column]],
                         [x_pos - 5.0, y_pos - 25.0, 10.0, 50.0],
                         c.transform,
                         g,
                     );
                 }
             }
+
+            rectangle(
+                [0.1, 0.1, 0.1, 1.0],
+                [0.0, h / 3.0, 10.0, h / 3.0],
+                c.transform,
+                g,
+            );
+
+            rectangle(
+                [0.1, 0.1, 0.1, 1.0],
+                [w - 10.0, h / 3.0, 10.0, h / 3.0],
+                c.transform,
+                g,
+            );
 
             ellipse(
                 [0.1, 0.1, 0.1, 1.0],
@@ -142,7 +177,25 @@ fn main() {
                 ],
                 c.transform,
                 g,
-            )
+            );
+
+            text(
+                [0.7, 0.7, 0.7, 1.0],
+                50,
+                &(world.p1.score).to_string(),
+                &mut glyphs,
+                c.transform.trans(w / 2.0 - 50.0, 50.0),
+                g,
+            ).unwrap();
+
+            text(
+                [0.7, 0.7, 0.7, 1.0],
+                50,
+                &(world.p2.score).to_string(),
+                &mut glyphs,
+                c.transform.trans(w / 2.0 + 50.0, 50.0),
+                g,
+            ).unwrap();
         });
     }
 }
