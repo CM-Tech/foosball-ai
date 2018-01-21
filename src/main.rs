@@ -117,7 +117,7 @@ impl App {
 //update game here (args.dt is delta time)
     fn update(&mut self, args: &UpdateArgs) {
         // Rotate 2 radians per second.
-        let mut world=&self.world;
+        let mut world=&mut self.world;
         let w = (world.size.0 as f64);
                     let h = (world.size.1 as f64);
         world.p1.position += world.p1.dir as f64 * args.dt;
