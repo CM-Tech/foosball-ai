@@ -17,13 +17,14 @@ struct Player {
 
 pub struct App {
     glyphs: Glyphs,
+    palette: usize,
     size: (u32, u32),
     ball: Ball,
     p1: Player,
     p2: Player,
 }
 
-const PALLETTES: [[[f32; 4]; 2]; 2] = [
+const PALETTES: [[[f32; 4]; 2]; 2] = [
     [[0.15, 0.72, 0.95, 1.0], [0.95, 0.6, 0.13, 1.0]],
     [[0.52, 0.84, 0.0, 1.0], [0.87, 0.29, 0.12, 1.0]],
 ];
@@ -31,11 +32,9 @@ const PLAYERS: [usize; 8] = [0, 0, 1, 0, 1, 0, 1, 1];
 
 impl App {
     fn render(&mut self, args: &RenderArgs, c: graphics::Context, gl: &mut G2d) {
-        let my_palette = PALLETTES[0];
-
         let shrunk_scale =
             (args.width as f64 / self.size.0 as f64).min(args.height as f64 / self.size.1 as f64);
-        let (cx, cy) = ((args.width / 2) as f64, (args.height / 2) as f64);
+        let (cx, cy) = (args.width as f64 / 2.0, args.height as f64 / 2.0);
 
         clear([0.9, 0.9, 0.9, 1.0], gl);
         let w = shrunk_scale * (self.size.0 as f64);
@@ -50,7 +49,7 @@ impl App {
                         / [3, 3, 4, 5, 5, 4, 3, 3][column] as f64 * h;
 
                 rectangle(
-                    my_palette[PLAYERS[column]],
+                    PALETTES[self.palette][PLAYERS[column]],
                     [x_pos - 5.0, y_pos - 25.0, 10.0, 50.0],
                     transform,
                     gl,
@@ -180,6 +179,7 @@ fn main() {
     // Create a new game and run it.
     let mut app = App {
         glyphs: glyphs,
+        palette: 0,
         size: size,
         ball: Ball {
             radius: 10.0,
@@ -215,6 +215,7 @@ fn main() {
                 Key::S => app.p1.dir = speed,
                 Key::Up => app.p2.dir = -speed,
                 Key::Down => app.p2.dir = speed,
+                Key::Space => app.palette = (app.palette + 1) % PALETTES.len(),
                 _ => (),
             }
         }
