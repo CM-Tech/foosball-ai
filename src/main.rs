@@ -44,13 +44,13 @@ impl App {
         for (column, amount) in [2, 3, 4, 5, 5, 4, 3, 2].iter().enumerate() {
             for y in 1..*amount {
                 let x_pos = (column as f64 + 1.0) / 9.0 * w;
-                let y_pos = h * (y as f64) / (*amount as f64)
+                let y_pos = (h * (y as f64) / (*amount as f64)
                     + [&self.p1, &self.p2][PLAYERS[column]].pos
-                        / [3, 3, 4, 5, 5, 4, 3, 3][column] as f64 * h;
+                        / [3, 3, 4, 5, 5, 4, 3, 3][column] as f64 * h-h/2.0)*(1.0-1.0/100.0)+h/2.0;
 
                 rectangle(
                     PALETTES[self.palette][PLAYERS[column]],
-                    [x_pos - 5.0, y_pos - 25.0, 10.0, 50.0],
+                    [x_pos - h/200.0, y_pos - h/20.0, h/100.0,  h/10.0],
                     transform,
                     gl,
                 );
@@ -71,7 +71,7 @@ impl App {
         );
 
         ellipse(
-            [0.1, 0.1, 0.1, 1.0],
+            [0.7, 0.7, 0.7, 1.0],
             [
                 self.ball.pos.0 - self.ball.radius,
                 self.ball.pos.1 - self.ball.radius,
@@ -145,14 +145,15 @@ impl App {
         for (column, amount) in [2, 3, 4, 5, 5, 4, 3, 2].iter().enumerate() {
             for y in 1..*amount {
                 let x_pos = (column as f64 + 1.0) / 9.0 * w;
-                let y_pos = h * (y as f64) / (*amount as f64)
+                let y_pos = (h * (y as f64) / (*amount as f64)
                     + [&self.p1, &self.p2][PLAYERS[column]].pos
-                        / [3, 3, 4, 5, 5, 4, 3, 3][column] as f64 * h;
+                        / [3, 3, 4, 5, 5, 4, 3, 3][column] as f64 * h-h/2.0)*(1.0-1.0/100.0)+h/2.0;
 
-                if self.ball.pos.0 - self.ball.radius < x_pos + 5.0
-                    && self.ball.pos.0 + self.ball.radius > x_pos - 5.0
-                    && self.ball.pos.1 - self.ball.radius < y_pos + 25.0
-                    && self.ball.pos.1 + self.ball.radius > y_pos - 25.0
+
+                if self.ball.pos.0 - self.ball.radius < x_pos + h/200.0
+                    && self.ball.pos.0 + self.ball.radius > x_pos - h/200.0
+                    && self.ball.pos.1 - self.ball.radius < y_pos + h/20.0
+                    && self.ball.pos.1 + self.ball.radius > y_pos - h/20.0
                 {
                     let ball_x =
                         (self.ball.pos.0 - x_pos).abs() * (PLAYERS[column] as f64 * -2.0 + 1.0);
