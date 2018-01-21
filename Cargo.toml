@@ -1,7 +1,7 @@
 [package]
 name = "foosball"
 version = "0.1.0"
-authors = ["modderme123 <hidden>"]
+authors = ["modderme123 coler706"]
 
 [dependencies]
 piston_window = "0.75"
