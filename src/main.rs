@@ -52,7 +52,7 @@ impl App {
         }
         let (cx, cy) = ((args.width / 2) as f64, (args.height / 2) as f64);
 
-       /* window.draw_2d(&e, |c, gl| {
+        window.draw_2d(&e, |c, gl| {
             // Clear the screen.
             clear([0.9, 0.9, 0.9, 1.0], gl);
             let w = shrunk_scale * (world.size.0 as f64);
@@ -173,7 +173,7 @@ impl App {
 
             // Draw a box rotating around the middle of the screen.
             //rectangle(RED, square, transform, gl);
-        });*/
+        });
     }
     //update game here (args.dt is delta time)
     fn update(&mut self, args: &UpdateArgs) {
