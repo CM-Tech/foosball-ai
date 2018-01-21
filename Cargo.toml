@@ -5,4 +5,6 @@ authors = ["modderme123 <hidden>"]
 
 [dependencies]
 piston_window = "0.75"
-find_folder = "0.3"
+interpolation = "0.1"
+piston2d-graphics = "0.24.0"
+piston2d-opengl_graphics = "0.50.0"
