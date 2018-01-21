@@ -53,24 +53,25 @@ impl App {
 
         let square = rectangle::square(0.0, 0.0, 50.0);
         let rotation = self.rotation;
-        let world=&self.world;
+        let mut world=&mut self.world;
         let mut shrunkScale=(args.width as f64)/(world.size.0 as f64);
         if((args.height as f64)/(world.size.1 as f64)<shrunkScale){
             shrunkScale=(args.height as f64)/(world.size.1 as f64);
         }
         let (cx, cy) = ((args.width / 2) as f64,
                       (args.height / 2) as f64);
-
+       
         self.gl.draw(args.viewport(), |c, gl| {
             // Clear the screen.
             clear([0.9, 0.9, 0.9, 1.0], gl);
-
-            for (column, amount) in [1, 2, 3, 4, 4, 3, 2, 1].iter().enumerate() {
-                for y in 0..*amount {
-                    let w = shrunkScale*(world.size.0 as f64);
+             let w = shrunkScale*(world.size.0 as f64);
                     let h = shrunkScale*(world.size.1 as f64);
                     let transform = c.transform.trans(cx, cy)
                                        .trans(-w/2.0, -h/2.0);
+
+            /*for (column, amount) in [1, 2, 3, 4, 4, 3, 2, 1].iter().enumerate() {
+                for y in 0..*amount {
+                    
                     ellipse(
                         colors[column as usize],
                         [
@@ -106,6 +107,35 @@ impl App {
                         gl,
                     );
                 }
+            }*/
+
+            for (column, amount) in [2, 3, 4, 5, 5, 4, 3, 2].iter().enumerate() {
+                for y in 1..*amount {
+                    let x_pos = (column as f64 + 1.0) / 9.0 * w;
+                    let y_pos = h * (y as f64) / (*amount as f64)
+                        + [&world.p1, &world.p2][PLAYERS[column]].position
+                            / [3, 3, 4, 5, 5, 4, 3, 3][column] as f64 * h;
+
+                    if world.ball.position.0 - world.ball.radius < x_pos + 5.0
+                        && world.ball.position.0 + world.ball.radius > x_pos - 5.0
+                        && world.ball.position.1 - world.ball.radius < y_pos + 25.0
+                        && world.ball.position.1 + world.ball.radius > y_pos - 25.0
+                    {
+                        let ball_x = (world.ball.position.0 - x_pos).abs()
+                            * (PLAYERS[column] as f64 * -2.0 + 1.0);
+                        let ball_y = world.ball.position.1 - y_pos;
+                        let length = ball_x.hypot(ball_y);
+                        world.ball.velocity.0 = ball_x / length;
+                        world.ball.velocity.1 = ball_y / length;
+                    }
+
+                    rectangle(
+                        my_palette[PLAYERS[column]],
+                        [x_pos - 5.0, y_pos - 25.0, 10.0, 50.0],
+                        transform,
+                        gl,
+                    );
+                }
             }
 
             
@@ -118,16 +148,17 @@ impl App {
     fn update(&mut self, args: &UpdateArgs) {
         // Rotate 2 radians per second.
         let mut world=&mut self.world;
+        let step:f64=args.dt*60.0;
         let w = (world.size.0 as f64);
                     let h = (world.size.1 as f64);
-        world.p1.position += world.p1.dir as f64 * args.dt;
-            world.p2.position += world.p2.dir as f64 * args.dt;
+        world.p1.position += world.p1.dir as f64 * step;
+            world.p2.position += world.p2.dir as f64 * step;
 
             world.p1.position = world.p1.position.min(1.0).max(-1.0);
             world.p2.position = world.p2.position.min(1.0).max(-1.0);
 
-            world.ball.position.0 += world.ball.velocity.0 * 5.0 * args.dt;
-            world.ball.position.1 += world.ball.velocity.1 * 5.0 * args.dt;
+            world.ball.position.0 += world.ball.velocity.0 * 5.0 * step;
+            world.ball.position.1 += world.ball.velocity.1 * 5.0 * step;
 
             if world.ball.position.1 - world.ball.radius > h / 3.0
                 && world.ball.position.1 + world.ball.radius < h * 2.0 / 3.0
