@@ -40,7 +40,7 @@ pub struct App {
 }
 
 impl App {
-    fn render(&mut self, args: &RenderArgs) {
+    fn render<E:piston::input::GenericEvent>(&mut self, args: &RenderArgs,e: &E, window: &mut PistonWindow) {
         let my_palette = PALLETTES[0];
 
         use graphics::*;
@@ -52,7 +52,7 @@ impl App {
         }
         let (cx, cy) = ((args.width / 2) as f64, (args.height / 2) as f64);
 
-        self.gl.draw(args.viewport(), |c, gl| {
+       /* window.draw_2d(&e, |c, gl| {
             // Clear the screen.
             clear([0.9, 0.9, 0.9, 1.0], gl);
             let w = shrunk_scale * (world.size.0 as f64);
@@ -173,7 +173,7 @@ impl App {
 
             // Draw a box rotating around the middle of the screen.
             //rectangle(RED, square, transform, gl);
-        });
+        });*/
     }
     //update game here (args.dt is delta time)
     fn update(&mut self, args: &UpdateArgs) {
@@ -266,7 +266,7 @@ let assets = find_folder::Search::ParentsThenKids(3, 3)
     let mut events = Events::new(EventSettings::new());
     while let Some(e) = events.next(&mut window) {
         if let Some(r) = e.render_args() {
-            app.render(&r);
+            app.render(&r,&e,&mut window);
         }
 
         if let Some(u) = e.update_args() {
