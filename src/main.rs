@@ -27,6 +27,11 @@ struct World {
     p1: Player,
     p2: Player,
 }
+const PALLETTES: [[[f32; 4]; 2]; 2] = [
+    [[0.15, 0.72, 0.95, 1.0], [0.95, 0.6, 0.13, 1.0]],
+    [[0.52, 0.84, 0.0, 1.0], [0.87, 0.29, 0.12, 1.0]],
+];
+const PLAYERS: [usize; 8] = [0, 0, 1, 0, 1, 0, 1, 1];
 pub struct App {
     gl: GlGraphics, // OpenGL drawing backend.
     rotation: f64,   // Rotation for the square.
@@ -36,11 +41,7 @@ pub struct App {
 
 impl App {
     fn render(&mut self, args: &RenderArgs) {
-        let pallettes = [
-        [[0.15, 0.72, 0.95, 1.0], [0.95, 0.6, 0.13, 1.0]],
-        [[0.52, 0.84, 0.0, 1.0], [0.87, 0.29, 0.12, 1.0]],
-    ];
-    let my_palette = pallettes[0];
+    let my_palette = PALLETTES[0];
     let colors: Vec<_> = [0, 0, 1, 0, 1, 0, 1, 1]
         .iter()
         .map(|x| my_palette[*x as usize])
@@ -116,7 +117,45 @@ impl App {
 //update game here (args.dt is delta time)
     fn update(&mut self, args: &UpdateArgs) {
         // Rotate 2 radians per second.
-        self.rotation += 2.0 * args.dt;
+        let mut world=&self.world;
+        let w = (world.size.0 as f64);
+                    let h = (world.size.1 as f64);
+        world.p1.position += world.p1.dir as f64 * args.dt;
+            world.p2.position += world.p2.dir as f64 * args.dt;
+
+            world.p1.position = world.p1.position.min(1.0).max(-1.0);
+            world.p2.position = world.p2.position.min(1.0).max(-1.0);
+
+            world.ball.position.0 += world.ball.velocity.0 * 5.0 * args.dt;
+            world.ball.position.1 += world.ball.velocity.1 * 5.0 * args.dt;
+
+            if world.ball.position.1 - world.ball.radius > h / 3.0
+                && world.ball.position.1 + world.ball.radius < h * 2.0 / 3.0
+            {
+                if world.ball.position.0 + world.ball.radius > w {
+                    world.p1.score += 1;
+                }
+                if world.ball.position.0 - world.ball.radius < 0.0 {
+                    world.p2.score += 1;
+                }
+            }
+
+            if world.ball.position.1 - world.ball.radius < 0.0 {
+                world.ball.velocity.1 = -world.ball.velocity.1;
+                world.ball.position.1 = world.ball.radius;
+            }
+            if world.ball.position.1 + world.ball.radius > h {
+                world.ball.velocity.1 = -world.ball.velocity.1;
+                world.ball.position.1 = h - world.ball.radius;
+            }
+            if world.ball.position.0 - world.ball.radius < 0.0 {
+                world.ball.velocity.0 = -world.ball.velocity.0;
+                world.ball.position.0 = world.ball.radius;
+            }
+            if world.ball.position.0 + world.ball.radius > w {
+                world.ball.velocity.0 = -world.ball.velocity.0;
+                world.ball.position.0 = w - world.ball.radius;
+            }
     }
     fn key(&mut self, key: Key) {
         if key == Key::W {
@@ -138,10 +177,12 @@ let mut world: World = World {
         },
         p1: Player {
             score: 0,
+            dir: 0.0,
             position: 0.5,
         },
         p2: Player {
             score: 0,
+            dir: 0.0,
             position: 0.5,
         },
     };
@@ -173,6 +214,25 @@ let mut world: World = World {
         if let Some(Button::Keyboard(key)) = e.press_args() {
             app.key(key);
             println!("Pressed keyboard key '{:?}'", key);
+        }
+        let speed = 0.05;
+        if let Some(Button::Keyboard(key)) = e.press_args() {
+            match key {
+                Key::W => app.world.p1.dir = -speed,
+                Key::S => app.world.p1.dir = speed,
+                Key::Up => app.world.p2.dir = -speed,
+                Key::Down => app.world.p2.dir = speed,
+                _ => (),
+            }
+        }
+        if let Some(Button::Keyboard(key)) = e.release_args() {
+            match key {
+                Key::W if app.world.p1.dir == -speed => app.world.p1.dir = 0.0,
+                Key::S if app.world.p1.dir == speed => app.world.p1.dir = 0.0,
+                Key::Up if app.world.p2.dir == -speed => app.world.p2.dir = 0.0,
+                Key::Down if app.world.p2.dir == speed => app.world.p2.dir = 0.0,
+                _ => (),
+            }
         }
     }
 }
