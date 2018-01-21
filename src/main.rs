@@ -5,14 +5,14 @@ use piston_window::*;
 
 struct Ball {
     radius: f64,
-    position: (f64, f64),
-    velocity: (f64, f64),
+    pos: (f64, f64),
+    vel: (f64, f64),
 }
 
 struct Player {
     score: u32,
     dir: f32,
-    position: f64,
+    pos: f64,
 }
 
 pub struct App {
@@ -45,7 +45,7 @@ impl App {
             for y in 1..*amount {
                 let x_pos = (column as f64 + 1.0) / 9.0 * w;
                 let y_pos = h * (y as f64) / (*amount as f64)
-                    + [&self.p1, &self.p2][PLAYERS[column]].position
+                    + [&self.p1, &self.p2][PLAYERS[column]].pos
                         / [3, 3, 4, 5, 5, 4, 3, 3][column] as f64 * h;
 
                 rectangle(
@@ -73,8 +73,8 @@ impl App {
         ellipse(
             [0.1, 0.1, 0.1, 1.0],
             [
-                self.ball.position.0 - self.ball.radius,
-                self.ball.position.1 - self.ball.radius,
+                self.ball.pos.0 - self.ball.radius,
+                self.ball.pos.1 - self.ball.radius,
                 self.ball.radius * 2.0,
                 self.ball.radius * 2.0,
             ],
@@ -105,61 +105,61 @@ impl App {
         let step: f64 = args.dt * 60.0;
         let w = self.size.0 as f64;
         let h = self.size.1 as f64;
-        self.p1.position += self.p1.dir as f64 * step;
-        self.p2.position += self.p2.dir as f64 * step;
+        self.p1.pos += self.p1.dir as f64 * step;
+        self.p2.pos += self.p2.dir as f64 * step;
 
-        self.p1.position = self.p1.position.min(1.0).max(-1.0);
-        self.p2.position = self.p2.position.min(1.0).max(-1.0);
+        self.p1.pos = self.p1.pos.min(1.0).max(-1.0);
+        self.p2.pos = self.p2.pos.min(1.0).max(-1.0);
 
-        self.ball.position.0 += self.ball.velocity.0 * 5.0 * step;
-        self.ball.position.1 += self.ball.velocity.1 * 5.0 * step;
+        self.ball.pos.0 += self.ball.vel.0 * 5.0 * step;
+        self.ball.pos.1 += self.ball.vel.1 * 5.0 * step;
 
-        if self.ball.position.1 - self.ball.radius > h / 3.0
-            && self.ball.position.1 + self.ball.radius < h * 2.0 / 3.0
+        if self.ball.pos.1 - self.ball.radius > h / 3.0
+            && self.ball.pos.1 + self.ball.radius < h * 2.0 / 3.0
         {
-            if self.ball.position.0 + self.ball.radius > w {
+            if self.ball.pos.0 + self.ball.radius > w {
                 self.p1.score += 1;
             }
-            if self.ball.position.0 - self.ball.radius < 0.0 {
+            if self.ball.pos.0 - self.ball.radius < 0.0 {
                 self.p2.score += 1;
             }
         }
 
-        if self.ball.position.1 - self.ball.radius < 0.0 {
-            self.ball.velocity.1 = -self.ball.velocity.1;
-            self.ball.position.1 = self.ball.radius;
+        if self.ball.pos.1 - self.ball.radius < 0.0 {
+            self.ball.vel.1 = -self.ball.vel.1;
+            self.ball.pos.1 = self.ball.radius;
         }
-        if self.ball.position.1 + self.ball.radius > h {
-            self.ball.velocity.1 = -self.ball.velocity.1;
-            self.ball.position.1 = h - self.ball.radius;
+        if self.ball.pos.1 + self.ball.radius > h {
+            self.ball.vel.1 = -self.ball.vel.1;
+            self.ball.pos.1 = h - self.ball.radius;
         }
-        if self.ball.position.0 - self.ball.radius < 0.0 {
-            self.ball.velocity.0 = -self.ball.velocity.0;
-            self.ball.position.0 = self.ball.radius;
+        if self.ball.pos.0 - self.ball.radius < 0.0 {
+            self.ball.vel.0 = -self.ball.vel.0;
+            self.ball.pos.0 = self.ball.radius;
         }
-        if self.ball.position.0 + self.ball.radius > w {
-            self.ball.velocity.0 = -self.ball.velocity.0;
-            self.ball.position.0 = w - self.ball.radius;
+        if self.ball.pos.0 + self.ball.radius > w {
+            self.ball.vel.0 = -self.ball.vel.0;
+            self.ball.pos.0 = w - self.ball.radius;
         }
 
         for (column, amount) in [2, 3, 4, 5, 5, 4, 3, 2].iter().enumerate() {
             for y in 1..*amount {
                 let x_pos = (column as f64 + 1.0) / 9.0 * w;
                 let y_pos = h * (y as f64) / (*amount as f64)
-                    + [&self.p1, &self.p2][PLAYERS[column]].position
+                    + [&self.p1, &self.p2][PLAYERS[column]].pos
                         / [3, 3, 4, 5, 5, 4, 3, 3][column] as f64 * h;
 
-                if self.ball.position.0 - self.ball.radius < x_pos + 5.0
-                    && self.ball.position.0 + self.ball.radius > x_pos - 5.0
-                    && self.ball.position.1 - self.ball.radius < y_pos + 25.0
-                    && self.ball.position.1 + self.ball.radius > y_pos - 25.0
+                if self.ball.pos.0 - self.ball.radius < x_pos + 5.0
+                    && self.ball.pos.0 + self.ball.radius > x_pos - 5.0
+                    && self.ball.pos.1 - self.ball.radius < y_pos + 25.0
+                    && self.ball.pos.1 + self.ball.radius > y_pos - 25.0
                 {
-                    let ball_x = (self.ball.position.0 - x_pos).abs()
-                        * (PLAYERS[column] as f64 * -2.0 + 1.0);
-                    let ball_y = self.ball.position.1 - y_pos;
+                    let ball_x =
+                        (self.ball.pos.0 - x_pos).abs() * (PLAYERS[column] as f64 * -2.0 + 1.0);
+                    let ball_y = self.ball.pos.1 - y_pos;
                     let length = ball_x.hypot(ball_y);
-                    self.ball.velocity.0 = ball_x / length;
-                    self.ball.velocity.1 = ball_y / length;
+                    self.ball.vel.0 = ball_x / length;
+                    self.ball.vel.1 = ball_y / length;
                 }
             }
         }
@@ -183,18 +183,18 @@ fn main() {
         size: size,
         ball: Ball {
             radius: 10.0,
-            position: (525.0, 300.0),
-            velocity: (1.0, 1.0),
+            pos: (525.0, 300.0),
+            vel: (1.0, 1.0),
         },
         p1: Player {
             score: 0,
             dir: 0.0,
-            position: 0.0,
+            pos: 0.0,
         },
         p2: Player {
             score: 0,
             dir: 0.0,
-            position: 0.0,
+            pos: 0.0,
         },
     };
 
