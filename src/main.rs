@@ -46,7 +46,7 @@ impl App {
                 let x_pos = (column as f64 + 1.0) / 9.0 * w;
                 let y_pos = (h * (y as f64) / (*amount as f64)
                     + [&self.p1, &self.p2][PLAYERS[column]].pos
-                        / [3, 3, 4, 5, 5, 4, 3, 3][column] as f64 * h-h/2.0)*(1.0-1.0/100.0)+h/2.0;
+                        / [3, 3, 4, 5, 5, 4, 3, 3][column] as f64 * h-h/2.0)*(1.0-1.0/10.0)+h/2.0;
 
                 rectangle(
                     PALETTES[self.palette][PLAYERS[column]],
@@ -147,7 +147,7 @@ impl App {
                 let x_pos = (column as f64 + 1.0) / 9.0 * w;
                 let y_pos = (h * (y as f64) / (*amount as f64)
                     + [&self.p1, &self.p2][PLAYERS[column]].pos
-                        / [3, 3, 4, 5, 5, 4, 3, 3][column] as f64 * h-h/2.0)*(1.0-1.0/100.0)+h/2.0;
+                        / [3, 3, 4, 5, 5, 4, 3, 3][column] as f64 * h-h/2.0)*(1.0-1.0/10.0)+h/2.0;
 
 
                 if self.ball.pos.0 - self.ball.radius < x_pos + h/200.0
