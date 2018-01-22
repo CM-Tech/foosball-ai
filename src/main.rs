@@ -29,7 +29,15 @@ const PALETTES: [[[f32; 4]; 2]; 2] = [
     [[0.52, 0.84, 0.0, 1.0], [0.87, 0.29, 0.12, 1.0]],
 ];
 const PLAYERS: [usize; 8] = [0, 0, 1, 0, 1, 0, 1, 1];
+fn pointOnRect(rect: ((f64, f64), (f64, f64)), ball: (f64, f64)) -> (f64, f64) {
+    let mut pnt: (f64, f64) = (ball.0 + 0.0, ball.1 + 0.0);
+    pnt.0 = (pnt.0).max((rect.0).0);
+    pnt.1 = (pnt.1).max((rect.0).1);
 
+    pnt.0 = (pnt.0).min((rect.0).0 + (rect.1).0);
+    pnt.1 = (pnt.1).min((rect.0).1 + (rect.1).1);
+    return pnt;
+}
 impl App {
     fn render(&mut self, args: &RenderArgs, c: graphics::Context, gl: &mut G2d) {
         let shrunk_scale =
@@ -44,13 +52,15 @@ impl App {
         for (column, amount) in [2, 3, 4, 5, 5, 4, 3, 2].iter().enumerate() {
             for y in 1..*amount {
                 let x_pos = (column as f64 + 1.0) / 9.0 * w;
-                let y_pos = (h * (y as f64) / (*amount as f64)
-                    + [&self.p1, &self.p2][PLAYERS[column]].pos
-                        / [3, 3, 4, 5, 5, 4, 3, 3][column] as f64 * h-h/2.0)*(1.0-1.0/10.0)+h/2.0;
+                let y_pos = (h * (y as f64) / (*amount as f64) +
+                                 [&self.p1, &self.p2][PLAYERS[column]].pos /
+                                     [3, 3, 4, 5, 5, 4, 3, 3][column] as f64 *
+                                     h - h / 2.0) *
+                    (1.0 - 1.0 / 10.0) + h / 2.0;
 
                 rectangle(
                     PALETTES[self.palette][PLAYERS[column]],
-                    [x_pos - h/200.0, y_pos - h/20.0, h/100.0,  h/10.0],
+                    [x_pos - h / 200.0, y_pos - h / 20.0, h / 100.0, h / 10.0],
                     transform,
                     gl,
                 );
@@ -110,12 +120,15 @@ impl App {
 
         self.p1.pos = self.p1.pos.min(1.0).max(-1.0);
         self.p2.pos = self.p2.pos.min(1.0).max(-1.0);
-
+        let mut ang: f64 = (self.ball.vel.1).atan2(self.ball.vel.0);
+        /*ang=ang+step/50.0;
+        self.ball.vel.0=ang.cos();
+        self.ball.vel.1=ang.sin();*/
         self.ball.pos.0 += self.ball.vel.0 * 5.0 * step;
         self.ball.pos.1 += self.ball.vel.1 * 5.0 * step;
 
-        if self.ball.pos.1 - self.ball.radius > h / 3.0
-            && self.ball.pos.1 + self.ball.radius < h * 2.0 / 3.0
+        if self.ball.pos.1 - self.ball.radius > h / 3.0 &&
+            self.ball.pos.1 + self.ball.radius < h * 2.0 / 3.0
         {
             if self.ball.pos.0 + self.ball.radius > w {
                 self.p1.score += 1;
@@ -145,12 +158,36 @@ impl App {
         for (column, amount) in [2, 3, 4, 5, 5, 4, 3, 2].iter().enumerate() {
             for y in 1..*amount {
                 let x_pos = (column as f64 + 1.0) / 9.0 * w;
-                let y_pos = (h * (y as f64) / (*amount as f64)
-                    + [&self.p1, &self.p2][PLAYERS[column]].pos
-                        / [3, 3, 4, 5, 5, 4, 3, 3][column] as f64 * h-h/2.0)*(1.0-1.0/10.0)+h/2.0;
+                let y_pos = (h * (y as f64) / (*amount as f64) +
+                                 [&self.p1, &self.p2][PLAYERS[column]].pos /
+                                     [3, 3, 4, 5, 5, 4, 3, 3][column] as f64 *
+                                     h - h / 2.0) *
+                    (1.0 - 1.0 / 10.0) + h / 2.0;
 
+                let mut corner: (f64, f64) =
+                    pointOnRect(
+                        ((x_pos - h / 200.0, y_pos - h / 20.0), (h / 100.0, h / 10.0)),
+                        self.ball.pos,
+                    );
+                let mut dist: f64 = (self.ball.pos.0 - corner.0).hypot(self.ball.pos.1 - corner.1);
+                let mut norm: (f64, f64) = (
+                    (self.ball.pos.0 - corner.0) / dist,
+                    (self.ball.pos.1 - corner.1) / dist,
+                );
+                if (dist < self.ball.radius) {
+                    let mut dot: f64 = self.ball.vel.0 * norm.0 + self.ball.vel.1 * norm.1;
+                    let mut speed: f64 = (self.ball.vel.0).hypot(self.ball.vel.1);
+                    if (dot < 0.0) {
+                        let mut change: (f64, f64) = (-dot * norm.0 * 2.0, -dot * norm.1 * 2.0);
+                        self.ball.vel.0 = self.ball.vel.0 + change.0;
+                        self.ball.vel.1 = self.ball.vel.1 + change.1;
+                        speed = (self.ball.vel.0).hypot(self.ball.vel.1);
+                        self.ball.vel.0 = self.ball.vel.0 / speed;
+                        self.ball.vel.1 = self.ball.vel.1 / speed;
+                    }
 
-                if self.ball.pos.0 - self.ball.radius < x_pos + h/200.0
+                }
+                /*if self.ball.pos.0 - self.ball.radius < x_pos + h/200.0
                     && self.ball.pos.0 + self.ball.radius > x_pos - h/200.0
                     && self.ball.pos.1 - self.ball.radius < y_pos + h/20.0
                     && self.ball.pos.1 + self.ball.radius > y_pos - h/20.0
@@ -161,7 +198,7 @@ impl App {
                     let length = ball_x.hypot(ball_y);
                     self.ball.vel.0 = ball_x / length;
                     self.ball.vel.1 = ball_y / length;
-                }
+                }*/
             }
         }
     }
@@ -201,9 +238,7 @@ fn main() {
 
     while let Some(e) = window.next() {
         if let Some(r) = e.render_args() {
-            window.draw_2d(&e, |c, gl| {
-                app.render(&r, c, gl);
-            });
+            window.draw_2d(&e, |c, gl| { app.render(&r, c, gl); });
         }
 
         if let Some(u) = e.update_args() {
